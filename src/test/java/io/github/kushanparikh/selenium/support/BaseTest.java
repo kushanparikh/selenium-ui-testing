@@ -1,6 +1,10 @@
 package io.github.kushanparikh.selenium.support;
 
+import io.github.kushanparikh.selenium.assertions.InventoryAssertions;
+import io.github.kushanparikh.selenium.assertions.LoginAssertions;
 import io.github.kushanparikh.selenium.config.Config;
+import io.github.kushanparikh.selenium.pages.InventoryPage;
+import io.github.kushanparikh.selenium.pages.LoginPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.openqa.selenium.OutputType;
@@ -16,9 +20,21 @@ public abstract class BaseTest {
 
     protected WebDriver driver;
 
+    protected LoginPage loginPage;
+    protected InventoryPage inventoryPage;
+
+    protected LoginAssertions loginAssertions;
+    protected InventoryAssertions inventoryAssertions;
+
     @BeforeEach
     void setUpBase(WebDriver driver) {
         this.driver = driver;
+
+        loginPage = new LoginPage(driver);
+        inventoryPage = new InventoryPage(driver);
+
+        loginAssertions = new LoginAssertions(loginPage);
+        inventoryAssertions = new InventoryAssertions(inventoryPage);
     }
 
     /** Playwright's page.goto('/') with baseURL. */

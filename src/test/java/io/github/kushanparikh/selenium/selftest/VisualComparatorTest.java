@@ -163,18 +163,54 @@ class VisualComparatorTest {
             return baselineDir.resolve(name + "-" + Config.browser().id() + "-" + Config.os() + ".png");
         }
 
+        /** Local behaviour (Playwright's): write the missing baseline and fail; the next run compares. */
         @Test
         void missingBaselineWritesActualAndFails() {
             driver.get("data:text/html,<h1>visual</h1>");
+            String saved = System.getProperty("writeMissingBaselines");
+            System.setProperty("writeMissingBaselines", "true");
+            try {
+                assertThatThrownBy(() -> VisualComparator.assertMatches(driver, context, "blank", baselineDir))
+                        .isInstanceOf(AssertionError.class)
+                        .hasMessageContaining("Missing baseline")
+                        .hasMessageContaining("wrote actual. Re-run to compare.");
+                assertThat(expectedBaseline("blank")).exists();
 
-            assertThatThrownBy(() -> VisualComparator.assertMatches(driver, context, "blank", baselineDir))
-                    .isInstanceOf(AssertionError.class)
-                    .hasMessageContaining("Missing baseline")
-                    .hasMessageContaining("wrote actual. Re-run to compare.");
-            assertThat(expectedBaseline("blank")).exists();
+                // Second run compares against the baseline just written and passes, like Playwright.
+                VisualComparator.assertMatches(driver, context, "blank", baselineDir);
+            } finally {
+                if (saved == null) {
+                    System.clearProperty("writeMissingBaselines");
+                } else {
+                    System.setProperty("writeMissingBaselines", saved);
+                }
+            }
+        }
 
-            // Second run compares against the baseline just written and passes, like Playwright.
-            VisualComparator.assertMatches(driver, context, "blank", baselineDir);
+        /**
+         * On CI a missing baseline must fail every attempt. Writing it made the retry compare the page against
+         * itself and pass (first CI run: all 6 Windows visual tests "passed" as flaky).
+         */
+        @Test
+        void missingBaselineOnCiIsNotWrittenAndKeepsFailing() {
+            driver.get("data:text/html,<h1>visual</h1>");
+            String saved = System.getProperty("writeMissingBaselines");
+            System.setProperty("writeMissingBaselines", "false");
+            try {
+                for (int attempt = 1; attempt <= 2; attempt++) {
+                    assertThatThrownBy(() -> VisualComparator.assertMatches(driver, context, "blank", baselineDir))
+                            .isInstanceOf(AssertionError.class)
+                            .hasMessageContaining("Missing baseline")
+                            .hasMessageContaining("not written on CI");
+                }
+                assertThat(expectedBaseline("blank")).doesNotExist();
+            } finally {
+                if (saved == null) {
+                    System.clearProperty("writeMissingBaselines");
+                } else {
+                    System.setProperty("writeMissingBaselines", saved);
+                }
+            }
         }
 
         @Test

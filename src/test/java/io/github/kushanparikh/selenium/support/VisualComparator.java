@@ -22,7 +22,8 @@ import java.nio.file.Path;
  *
  * <p>Baselines live in src/test/resources/visual-baselines/&lt;name&gt;-&lt;browser&gt;-&lt;os&gt;.png. A missing baseline
  * is written from the actual image and the test fails (a re-run compares); -DupdateSnapshots=true overwrites the
- * baseline and passes. Every path in a failure message is repo-relative.
+ * baseline and passes. On CI a missing baseline is not written, so every retry fails too (see
+ * Config.writeMissingBaselines). Every path in a failure message is repo-relative.
  */
 public final class VisualComparator {
 
@@ -100,6 +101,11 @@ public final class VisualComparator {
         Path baseline = baselinePath(baselineDir, name);
         String baselineRef = Attachments.relativePath(baseline);
 
+        if (!Files.exists(baseline) && !Config.updateSnapshots() && !Config.writeMissingBaselines()) {
+            Attachments.save(context, name + "-actual", "png", actualPng);
+            throw new AssertionError("Missing baseline " + baselineRef + "; not written on CI (the screenshot is the "
+                    + name + "-actual.png attachment; commit it as the baseline or run with -DupdateSnapshots=true).");
+        }
         if (Config.updateSnapshots() || !Files.exists(baseline)) {
             boolean missing = !Files.exists(baseline);
             write(baseline, actualPng, baselineRef);

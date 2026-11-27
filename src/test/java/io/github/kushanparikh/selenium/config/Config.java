@@ -41,6 +41,14 @@ public final class Config {
         return Boolean.parseBoolean(property("updateSnapshots", "false"));
     }
 
+    /**
+     * Whether a missing visual baseline is written from the actual image (Playwright's behaviour). On by default
+     * locally, off on CI: with retries, a written baseline made the retry compare the page against itself and pass.
+     */
+    public static boolean writeMissingBaselines() {
+        return Boolean.parseBoolean(property("writeMissingBaselines", String.valueOf(!isCi())));
+    }
+
     /** OS id used in visual baseline names: windows, mac or linux. */
     public static String os() {
         String name = System.getProperty("os.name", "").toLowerCase(Locale.ROOT);

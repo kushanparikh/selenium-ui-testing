@@ -27,6 +27,7 @@
         <baseUrl></baseUrl>
         <timeoutSeconds></timeoutSeconds>
         <updateSnapshots>false</updateSnapshots>
+        <writeMissingBaselines></writeMissingBaselines>
 
         <!-- Test selection (JUnit 5 tags). -->
         <groups></groups>
@@ -127,6 +128,7 @@
                         <baseUrl>${baseUrl}</baseUrl>
                         <timeoutSeconds>${timeoutSeconds}</timeoutSeconds>
                         <updateSnapshots>${updateSnapshots}</updateSnapshots>
+                        <writeMissingBaselines>${writeMissingBaselines}</writeMissingBaselines>
                         <repoRoot>${project.basedir}</repoRoot>
                     </systemPropertyVariables>
                 </configuration>

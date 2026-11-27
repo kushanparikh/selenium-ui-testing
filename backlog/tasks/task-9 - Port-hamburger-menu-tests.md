@@ -1,10 +1,10 @@
 ---
 id: TASK-9
 title: Port hamburger menu tests
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
-updated_date: '2026-11-27T02:20:18Z'
+updated_date: '2026-11-27T02:47:13Z'
 labels:
   - port
   - functional
@@ -28,6 +28,12 @@ Plan Task 9 (hamburger half). HamburgerMenuPage, HamburgerMenuAssertions, Hambur
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 mvn -q test -Dtest=HamburgerMenuTest: 6 pass
-- [ ] #2 VerifyReport exits 0
+- [x] #1 mvn -q test -Dtest=HamburgerMenuTest: 6 pass
+- [x] #2 VerifyReport exits 0
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Wave B subagent. 6/6 x3 after integration fix: stale element on the menu button after a route change (React re-render) - fixed framework-wide with Waits.click(By). About test uses the TS 15 s wait.
+<!-- SECTION:NOTES:END -->

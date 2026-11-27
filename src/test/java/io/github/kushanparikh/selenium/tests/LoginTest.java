@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -167,6 +168,8 @@ class LoginTest extends BaseTest {
 
         @Test
         @DisplayName("should support tab order navigation")
+        @DisabledIfSystemProperty(named = "browser", matches = "(?i)safari",
+                disabledReason = "Safari's Tab key skips buttons unless Settings > Advanced > 'Press Tab to highlight each item' is on, so the Login button never receives focus. Known browser difference, see TODO.")
         void tabOrderNavigation() {
             Actions keyboard = new Actions(driver);
 

@@ -9,9 +9,6 @@ import org.junit.jupiter.api.Test;
 
 /**
  * Port of tests/productDetail.spec.ts.
- * The TS spec checks the cart badge on the inventory page with inventoryAssertions.verifyCartBadgeCount; the badge
- * is the same shared header element ([data-test='shopping-cart-badge']), so this port uses
- * productDetailAssertions.verifyCartBadgeCount there.
  */
 @Tag("functional")
 class ProductDetailTest extends BaseTest {
@@ -131,7 +128,7 @@ class ProductDetailTest extends BaseTest {
         productDetailPage.clickBackToProducts();
         inventoryAssertions.verifyInventoryLandingDetails();
 
-        productDetailAssertions.verifyCartBadgeCount("1");
+        inventoryAssertions.verifyCartBadgeCount("1");
 
         productDetailPage.navigateToProductDetailFromInventory("Test.allTheThings() T-Shirt (Red)");
         productDetailAssertions.verifyProductDetailPageLoaded();
@@ -144,7 +141,7 @@ class ProductDetailTest extends BaseTest {
         productDetailPage.clickBackToProducts();
         inventoryAssertions.verifyInventoryLandingDetails();
 
-        productDetailAssertions.verifyCartBadgeCount("2");
+        inventoryAssertions.verifyCartBadgeCount("2");
 
         attachScreenshot("cart-state-maintained");
     }

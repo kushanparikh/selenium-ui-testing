@@ -1,0 +1,15 @@
+# Build output
+target/
+
+# Test results (reports, attachments) - produced per run, uploaded by CI
+/results/
+
+# Local-only planning docs and agent workspaces
+docs/superpowers/
+.superpowers/
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store

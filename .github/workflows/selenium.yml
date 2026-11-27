@@ -41,6 +41,13 @@ jobs:
         if: matrix.browser == 'safari'
         run: sudo safaridriver --enable
 
+      - name: "Diagnostic: capture the runner's screen every 30 s (temporary)"
+        # Safari's own screenshots on this runner are blank pages; this shows what is really on screen.
+        if: matrix.browser == 'safari'
+        run: |
+          mkdir -p results/screen
+          nohup bash -c 'i=0; while true; do screencapture -x "results/screen/$(printf %03d $i).png"; i=$((i+1)); sleep 30; done' >/dev/null 2>&1 &
+
       - name: Run tests
         # Test failures don't stop the job, so the reports below are always uploaded
         # (the Playwright workflow does the same with continue-on-error).
@@ -78,6 +85,14 @@ jobs:
           name: test-evidence-${{ matrix.browser }}
           path: results/attachments/
           retention-days: 7
+
+      - name: "Diagnostic: upload runner screen captures (temporary)"
+        if: always() && matrix.browser == 'safari'
+        uses: actions/upload-artifact@v4
+        with:
+          name: screen-captures-safari
+          path: results/screen/
+          retention-days: 3
 
       - name: Upload Allure results
         if: always()

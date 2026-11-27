@@ -1,4 +1,4 @@
-package io.github.kushanparikh.selenium.unit;
+package io.github.kushanparikh.selenium.selftest;
 
 import io.github.kushanparikh.selenium.config.Browser;
 import io.github.kushanparikh.selenium.config.Config;
@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Framework self-test for the Playwright-equivalent image comparison (synthetic images, no saucedemo.com). */
-@Tag("unit")
+@Tag("selftest")
 class VisualComparatorTest {
 
     private static BufferedImage filled(int width, int height, Color colour) {

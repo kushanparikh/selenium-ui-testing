@@ -4,7 +4,7 @@ title: Port e2e purchase workflows
 status: Done
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
-updated_date: '2026-11-27T03:10:34Z'
+updated_date: '2026-11-27T03:13:04Z'
 labels:
   - port
   - e2e
@@ -40,5 +40,5 @@ Plan Task 10. CompletePurchaseTest (10 tests from tests/e2e/completePurchase.spe
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Commit 91582aa. 10/10 e2e pass; functional run = 79 tests. Full suite 107 = 85 ported (79 functional + 3 visual + 3 a11y, same as Playwright) + 22 framework self-tests. One-shot TS cart counts became waiting verifyCartItemCount; waitForTimeout calls dropped. SmokeTest now tagged unit.
+Commit 91582aa. 10/10 e2e pass; functional run = 79 tests. Full suite 107 = 85 ported (79 functional + 3 visual + 3 a11y, same as Playwright) + 22 framework self-tests (selftest/ package, tag selftest — they test the framework's own helpers, not saucedemo; CI excludes them). One-shot TS cart counts became waiting verifyCartItemCount; waitForTimeout calls dropped.
 <!-- SECTION:NOTES:END -->

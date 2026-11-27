@@ -1,4 +1,4 @@
-package io.github.kushanparikh.selenium.unit;
+package io.github.kushanparikh.selenium.selftest;
 
 import com.deque.html.axecore.results.Rule;
 import io.github.kushanparikh.selenium.support.AccessibilityChecker;
@@ -11,7 +11,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /** Known issues that axe no longer reports are flagged as stale (they don't fail the test). */
-@Tag("unit")
+@Tag("selftest")
 class AccessibilityCheckerTest {
 
     private static final KnownIssue SELECT_NAME =

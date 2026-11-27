@@ -1,4 +1,4 @@
-package io.github.kushanparikh.selenium.unit;
+package io.github.kushanparikh.selenium.selftest;
 
 import io.github.kushanparikh.selenium.config.Config;
 import io.github.kushanparikh.selenium.support.Attachments;
@@ -10,7 +10,7 @@ import java.nio.file.Path;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-@Tag("unit")
+@Tag("selftest")
 class AttachmentsTest {
 
     @Test

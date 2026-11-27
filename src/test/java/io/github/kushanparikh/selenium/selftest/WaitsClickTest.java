@@ -1,4 +1,4 @@
-package io.github.kushanparikh.selenium.unit;
+package io.github.kushanparikh.selenium.selftest;
 
 import io.github.kushanparikh.selenium.support.Waits;
 import org.junit.jupiter.api.Tag;
@@ -19,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * header when saucedemo changes route). No real browser can hit that window on demand, so this uses a fake
  * driver whose element goes stale on the first click.
  */
-@Tag("unit")
+@Tag("selftest")
 class WaitsClickTest {
 
     @Test

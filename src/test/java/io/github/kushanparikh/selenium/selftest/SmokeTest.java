@@ -1,4 +1,4 @@
-package io.github.kushanparikh.selenium.unit;
+package io.github.kushanparikh.selenium.selftest;
 
 import io.github.kushanparikh.selenium.support.BaseTest;
 import org.junit.jupiter.api.Tag;
@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /** End-to-end check of the test base: driver per test, base URL, final screenshot. */
-@Tag("unit")
+@Tag("selftest")
 class SmokeTest extends BaseTest {
 
     @Test

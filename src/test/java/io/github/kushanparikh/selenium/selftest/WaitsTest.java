@@ -1,4 +1,4 @@
-package io.github.kushanparikh.selenium.unit;
+package io.github.kushanparikh.selenium.selftest;
 
 import io.github.kushanparikh.selenium.config.Browser;
 import io.github.kushanparikh.selenium.driver.DriverFactory;
@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /** Framework self-test: needs headless Chrome but not saucedemo.com. */
-@Tag("unit")
+@Tag("selftest")
 class WaitsTest {
 
     private WebDriver driver;

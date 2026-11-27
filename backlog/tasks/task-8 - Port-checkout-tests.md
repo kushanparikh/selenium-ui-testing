@@ -4,12 +4,13 @@ title: Port checkout tests
 status: To Do
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
+updated_date: '2026-11-27T02:20:11Z'
 labels:
   - port
   - functional
 milestone: m-1
 dependencies:
-  - TASK-4
+  - TASK-5
 references:
   - docs/superpowers/plans/2026-11-26-selenium-migration.md
 documentation:

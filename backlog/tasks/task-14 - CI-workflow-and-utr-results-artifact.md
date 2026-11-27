@@ -4,6 +4,7 @@ title: CI workflow and utr-results artifact
 status: To Do
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
+updated_date: '2026-11-27T02:14:38Z'
 labels:
   - ci
   - utr
@@ -32,4 +33,5 @@ Plan Task 14. GitHub Actions matrix (windows chrome/firefox, macos safari), nigh
 - [ ] #2 Windows and Safari baselines generated via update_snapshots dispatch and committed
 - [ ] #3 Downloaded utr-results passes VerifyReport for all 3 browsers, 85 tests each
 - [ ] #4 Sample artifact committed under samples/utr-results/
+- [ ] #5 CI runs SanitizeReport then VerifyReport on each browser's results before upload
 <!-- AC:END -->

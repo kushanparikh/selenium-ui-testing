@@ -4,12 +4,12 @@ title: Visual regression
 status: To Do
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
+updated_date: '2026-11-27T02:20:11Z'
 labels:
   - visual
 milestone: m-2
 dependencies:
   - TASK-5
-  - TASK-7
 references:
   - docs/superpowers/plans/2026-11-26-selenium-migration.md
 documentation:

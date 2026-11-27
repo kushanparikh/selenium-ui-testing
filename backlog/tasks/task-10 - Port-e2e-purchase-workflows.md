@@ -4,6 +4,7 @@ title: Port e2e purchase workflows
 status: To Do
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
+updated_date: '2026-11-27T02:20:11Z'
 labels:
   - port
   - e2e
@@ -14,6 +15,7 @@ dependencies:
   - TASK-7
   - TASK-8
   - TASK-9
+  - TASK-16
 references:
   - docs/superpowers/plans/2026-11-26-selenium-migration.md
 documentation:

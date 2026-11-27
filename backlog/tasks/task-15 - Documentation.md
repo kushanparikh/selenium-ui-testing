@@ -4,6 +4,7 @@ title: Documentation
 status: To Do
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
+updated_date: '2026-11-27T02:30:43Z'
 labels:
   - docs
 milestone: m-4
@@ -30,4 +31,5 @@ Plan Task 15. README (command mapping + utr contract), ARCHITECTURE, LEARNING_NO
 - [ ] #2 README documents the utr contract with final artifact layout
 - [ ] #3 LEARNING_NOTES has a Playwright vs Selenium entry per TS topic
 - [ ] #4 Spot-checked README commands run
+- [ ] #5 LEARNING_NOTES/TODO record the Twitter→X footer divergence from the TS suite and the vacuous TS image test
 <!-- AC:END -->

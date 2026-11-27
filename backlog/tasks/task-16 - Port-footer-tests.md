@@ -4,7 +4,7 @@ title: Port footer tests
 status: Done
 assignee: []
 created_date: '2026-11-27T02:20:10Z'
-updated_date: '2026-11-27T02:28:35Z'
+updated_date: '2026-11-27T02:30:43Z'
 labels:
   - port
   - functional
@@ -35,5 +35,5 @@ Plan Task 9 (footer half, split from TASK-9). FooterPage, FooterAssertions, Foot
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Done in parallel wave A (subagent). 4/4 pass. OPEN DECISION: saucedemo renamed the Twitter link to X (data-test=social-x, href x.com). Java currently accepts either; the TS test fails on this in CI (hidden by continue-on-error).
+Done in parallel wave A (subagent). 4/4 pass. DECIDED (owner, option a): saucedemo renamed the Twitter link to X (data-test=social-x, href x.com); the Java test accepts either. The TS test still fails on this (hidden by continue-on-error) - known divergence, to note in LEARNING_NOTES/TODO (TASK-15).
 <!-- SECTION:NOTES:END -->

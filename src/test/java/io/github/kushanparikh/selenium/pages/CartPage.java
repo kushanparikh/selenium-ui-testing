@@ -23,19 +23,19 @@ public class CartPage extends BasePage {
     // Actions
 
     public void navigateToCart() {
-        waits().clickable(CART_LINK).click();
+        waits().click(CART_LINK);
     }
 
     public void removeItemFromCart(String itemTestId) {
-        waits().clickable(getRemoveButton(itemTestId)).click();
+        waits().click(getRemoveButton(itemTestId));
     }
 
     public void clickContinueShopping() {
-        waits().clickable(CONTINUE_SHOPPING).click();
+        waits().click(CONTINUE_SHOPPING);
     }
 
     public void clickCheckout() {
-        waits().clickable(CHECKOUT).click();
+        waits().click(CHECKOUT);
     }
 
     // Getters

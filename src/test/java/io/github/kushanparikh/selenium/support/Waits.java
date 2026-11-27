@@ -1,6 +1,7 @@
 package io.github.kushanparikh.selenium.support;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementClickInterceptedException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.TimeoutException;
@@ -34,6 +35,27 @@ public final class Waits {
 
     public WebElement clickable(By locator) {
         return until("clickability of " + locator, ExpectedConditions.elementToBeClickable(locator));
+    }
+
+    /**
+     * Finds and clicks in one retried step, like Playwright's locator.click(). Splitting it into
+     * clickable(locator).click() races with re-renders: saucedemo is a React app, so after a route change the
+     * element found a moment ago can be replaced before the click lands (StaleElementReferenceException), or
+     * be covered by the sliding menu (ElementClickInterceptedException). Both are retried until the timeout.
+     */
+    public void click(By locator) {
+        until("click on " + locator, d -> {
+            WebElement element = d.findElement(locator);
+            if (!element.isDisplayed() || !element.isEnabled()) {
+                return null;
+            }
+            try {
+                element.click();
+                return true;
+            } catch (ElementClickInterceptedException e) {
+                return null;
+            }
+        });
     }
 
     /** Waits until at least one element matches, then returns all matches. */

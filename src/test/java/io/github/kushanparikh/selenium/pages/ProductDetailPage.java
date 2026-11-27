@@ -41,15 +41,15 @@ public class ProductDetailPage extends BasePage {
     }
 
     public void addItemToCart() {
-        waits().clickable(ADD_TO_CART).click();
+        waits().click(ADD_TO_CART);
     }
 
     public void removeItemFromCart() {
-        waits().clickable(REMOVE).click();
+        waits().click(REMOVE);
     }
 
     public void clickBackToProducts() {
-        waits().clickable(BACK_TO_PRODUCTS).click();
+        waits().click(BACK_TO_PRODUCTS);
     }
 
     // Getters

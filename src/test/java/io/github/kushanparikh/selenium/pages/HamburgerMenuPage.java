@@ -24,27 +24,27 @@ public class HamburgerMenuPage extends BasePage {
     // Actions
 
     public void openMenu() {
-        waits().clickable(MENU_BUTTON).click();
+        waits().click(MENU_BUTTON);
     }
 
     public void closeMenu() {
-        waits().clickable(CLOSE_BUTTON).click();
+        waits().click(CLOSE_BUTTON);
     }
 
     public void clickAllItemsLink() {
-        waits().clickable(ALL_ITEMS_LINK).click();
+        waits().click(ALL_ITEMS_LINK);
     }
 
     public void clickAboutLink() {
-        waits().clickable(ABOUT_LINK).click();
+        waits().click(ABOUT_LINK);
     }
 
     public void clickLogoutLink() {
-        waits().clickable(LOGOUT_LINK).click();
+        waits().click(LOGOUT_LINK);
     }
 
     public void clickResetAppStateLink() {
-        waits().clickable(RESET_APP_STATE_LINK).click();
+        waits().click(RESET_APP_STATE_LINK);
     }
 
     // Getters

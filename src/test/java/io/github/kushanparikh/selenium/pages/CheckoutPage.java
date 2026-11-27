@@ -44,11 +44,11 @@ public class CheckoutPage extends BasePage {
     }
 
     public void clickContinue() {
-        waits().clickable(CONTINUE).click();
+        waits().click(CONTINUE);
     }
 
     public void clickCancel() {
-        waits().clickable(CANCEL).click();
+        waits().click(CANCEL);
     }
 
     public void fillFirstName(String firstName) {
@@ -96,11 +96,11 @@ public class CheckoutPage extends BasePage {
     // Checkout Overview Page Actions
 
     public void clickFinish() {
-        waits().clickable(FINISH).click();
+        waits().click(FINISH);
     }
 
     public void clickCancelOnOverview() {
-        waits().clickable(CANCEL).click();
+        waits().click(CANCEL);
     }
 
     // Checkout Overview Page Getters
@@ -195,7 +195,7 @@ public class CheckoutPage extends BasePage {
     // Checkout Complete Page Actions
 
     public void clickBackHome() {
-        waits().clickable(BACK_HOME).click();
+        waits().click(BACK_HOME);
     }
 
     // Checkout Complete Page Getters

@@ -30,7 +30,7 @@ class CheckoutTest extends BaseTest {
         checkoutPage.waits().urlContains("cart.html");
 
         // The TS clicks the cart page's checkout button with a raw page.locator, not a page object; kept inline.
-        checkoutPage.waits().clickable(By.cssSelector("[data-test='checkout']")).click();
+        checkoutPage.waits().click(By.cssSelector("[data-test='checkout']"));
         checkoutPage.waits().urlContains("checkout-step-one.html");
     }
 

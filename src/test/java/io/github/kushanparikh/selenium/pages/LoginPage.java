@@ -23,7 +23,7 @@ public class LoginPage extends BasePage {
     public void login(String username, String password) {
         fill(USERNAME, username);
         fill(PASSWORD, password);
-        waits().clickable(LOGIN_BUTTON).click();
+        waits().click(LOGIN_BUTTON);
     }
 
     // Getters

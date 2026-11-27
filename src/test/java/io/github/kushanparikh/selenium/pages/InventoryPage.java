@@ -24,11 +24,11 @@ public class InventoryPage extends BasePage {
     // Actions
 
     public void addItemToCart(String itemTestId) {
-        waits().clickable(getAddToCartButton(itemTestId)).click();
+        waits().click(getAddToCartButton(itemTestId));
     }
 
     public void removeItemFromCart(String itemTestId) {
-        waits().clickable(getRemoveButton(itemTestId)).click();
+        waits().click(getRemoveButton(itemTestId));
     }
 
     /** Playwright's selectOption({ value }). */
@@ -38,7 +38,7 @@ public class InventoryPage extends BasePage {
 
     /** The TS clicks the .shopping_cart_link class here, while getCartLink() uses data-test; both kept as-is. */
     public void clickCartLink() {
-        waits().clickable(CART_LINK_CLASS).click();
+        waits().click(CART_LINK_CLASS);
     }
 
     // Getters

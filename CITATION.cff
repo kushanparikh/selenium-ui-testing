@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata below."
+title: "Selenium UI Testing"
+abstract: "UI test automation for saucedemo.com with Selenium 4, Java 21 and JUnit 5; a migration of the Playwright TypeScript Framework."
+type: software
+authors:
+  - family-names: "Parikh"
+    given-names: "Kushan"
+    orcid: "https://orcid.org/0009-0004-2457-8605"
+repository-code: "https://github.com/kushanparikh/selenium-ui-testing"
+license: MIT
+version: 1.0.0
+keywords:
+  - selenium
+  - java
+  - junit5
+  - test automation

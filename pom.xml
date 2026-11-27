@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.kushanparikh</groupId>
+    <artifactId>selenium-ui-testing</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <name>selenium-ui-testing</name>
+    <description>UI test automation for saucedemo.com with Selenium 4 and Java (migration of playwright-typescript-framework)</description>
+
+    <properties>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <selenium.version>4.54.0</selenium.version>
+        <junit.version>5.14.4</junit.version>
+        <assertj.version>3.27.7</assertj.version>
+        <axe.version>4.14.1</axe.version>
+        <allure.version>2.35.6</allure.version>
+        <slf4j.version>2.0.20</slf4j.version>
+
+        <!-- Runtime switches (override with -D...). Blank means "use the default in Config". -->
+        <browser>chrome</browser>
+        <headless></headless>
+        <baseUrl></baseUrl>
+        <timeoutSeconds></timeoutSeconds>
+        <updateSnapshots>false</updateSnapshots>
+
+        <!-- Test selection (JUnit 5 tags). -->
+        <groups></groups>
+        <excludedGroups>contract-demo</excludedGroups>
+
+        <!-- Retries: 0 locally, 2 in CI (profile "ci"). Every attempt is kept in the JUnit XML. -->
+        <surefire.rerunFailingTestsCount>0</surefire.rerunFailingTestsCount>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>${selenium.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>${assertj.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.deque.html.axe-core</groupId>
+            <artifactId>selenium</artifactId>
+            <version>${axe.version}</version>
+            <scope>test</scope>
+            <exclusions>
+                <!-- Use the Selenium version declared above. -->
+                <exclusion>
+                    <groupId>org.seleniumhq.selenium</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-junit5</artifactId>
+            <version>${allure.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.16.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.6.1</version>
+                <configuration>
+                    <!-- utr contract (see README "utr contract"): one directory per browser. -->
+                    <reportsDirectory>${project.basedir}/results/junit/${browser}</reportsDirectory>
+                    <!-- The <properties> block would leak usernames and absolute paths. -->
+                    <enablePropertiesElement>false</enablePropertiesElement>
+                    <groups>${groups}</groups>
+                    <excludedGroups>${excludedGroups}</excludedGroups>
+                    <rerunFailingTestsCount>${surefire.rerunFailingTestsCount}</rerunFailingTestsCount>
+                    <statelessTestsetReporter implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5Xml30StatelessReporter">
+                        <disable>false</disable>
+                        <version>3.0.2</version>
+                        <usePhrasedFileName>false</usePhrasedFileName>
+                        <usePhrasedTestSuiteClassName>false</usePhrasedTestSuiteClassName>
+                        <usePhrasedTestCaseClassName>false</usePhrasedTestCaseClassName>
+                        <!-- testcase name = @DisplayName (the Playwright title); classname stays the FQN. -->
+                        <usePhrasedTestCaseMethodName>true</usePhrasedTestCaseMethodName>
+                    </statelessTestsetReporter>
+                    <systemPropertyVariables>
+                        <browser>${browser}</browser>
+                        <headless>${headless}</headless>
+                        <baseUrl>${baseUrl}</baseUrl>
+                        <timeoutSeconds>${timeoutSeconds}</timeoutSeconds>
+                        <updateSnapshots>${updateSnapshots}</updateSnapshots>
+                        <repoRoot>${project.basedir}</repoRoot>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <!-- Activated automatically on CI (GitHub Actions sets CI=true). -->
+        <profile>
+            <id>ci</id>
+            <activation>
+                <property>
+                    <name>env.CI</name>
+                </property>
+            </activation>
+            <properties>
+                <surefire.rerunFailingTestsCount>2</surefire.rerunFailingTestsCount>
+            </properties>
+        </profile>
+        <!-- Mirrors of the Playwright repo's npm scripts. -->
+        <profile>
+            <id>stable</id>
+            <properties>
+                <excludedGroups>flaky,contract-demo</excludedGroups>
+            </properties>
+        </profile>
+        <profile>
+            <id>functional</id>
+            <properties>
+                <groups>functional</groups>
+            </properties>
+        </profile>
+        <profile>
+            <id>visual</id>
+            <properties>
+                <groups>visual</groups>
+            </properties>
+        </profile>
+        <profile>
+            <id>a11y</id>
+            <properties>
+                <groups>a11y</groups>
+            </properties>
+        </profile>
+    </profiles>
+</project>

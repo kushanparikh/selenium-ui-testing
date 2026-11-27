@@ -4,7 +4,9 @@ import io.github.kushanparikh.selenium.support.Waits;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
+import org.openqa.selenium.ElementNotInteractableException;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
@@ -24,6 +26,16 @@ class WaitsClickTest {
 
     @Test
     void clickRetriesWhenElementGoesStale() {
+        assertClickRetriesAfter(new StaleElementReferenceException("re-rendered"));
+    }
+
+    /** Safari on CI: the element exists but isn't interactable yet (ElementNotInteractableException). */
+    @Test
+    void clickRetriesWhenElementIsNotInteractableYet() {
+        assertClickRetriesAfter(new ElementNotInteractableException("not interactable yet"));
+    }
+
+    private void assertClickRetriesAfter(WebDriverException firstClickFailure) {
         AtomicInteger clicks = new AtomicInteger();
         AtomicInteger finds = new AtomicInteger();
         WebElement element = (WebElement) Proxy.newProxyInstance(getClass().getClassLoader(),
@@ -31,7 +43,7 @@ class WaitsClickTest {
                     case "isDisplayed", "isEnabled" -> true;
                     case "click" -> {
                         if (clicks.incrementAndGet() == 1) {
-                            throw new StaleElementReferenceException("re-rendered");
+                            throw firstClickFailure;
                         }
                         yield null;
                     }
@@ -51,6 +63,6 @@ class WaitsClickTest {
         new Waits(driver, Duration.ofSeconds(2)).click(By.id("menu"));
 
         assertThat(clicks.get()).isEqualTo(2);
-        assertThat(finds.get()).as("element is looked up again after going stale").isEqualTo(2);
+        assertThat(finds.get()).as("element is looked up again after the failed click").isEqualTo(2);
     }
 }

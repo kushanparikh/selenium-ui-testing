@@ -2,6 +2,7 @@ package io.github.kushanparikh.selenium.driver;
 
 import io.github.kushanparikh.selenium.config.Browser;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -11,6 +12,7 @@ import org.openqa.selenium.safari.SafariDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -20,8 +22,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public final class DriverFactory {
 
-    /** Playwright's "Desktop Chrome/Firefox/Safari" devices use a 1280x720 viewport. */
-    public static final Dimension WINDOW_SIZE = new Dimension(1280, 720);
+    /** Playwright's "Desktop Chrome/Firefox/Safari" devices use a 1280x720 viewport (the page area). */
+    public static final Dimension VIEWPORT = new Dimension(1280, 720);
 
     private static final Logger LOG = LoggerFactory.getLogger(DriverFactory.class);
     private static final AtomicBoolean SAFARI_HEADLESS_WARNED = new AtomicBoolean();
@@ -40,8 +42,25 @@ public final class DriverFactory {
                 yield new SafariDriver();
             }
         };
-        driver.manage().window().setSize(WINDOW_SIZE);
+        setViewport(driver, VIEWPORT);
         return driver;
+    }
+
+    /**
+     * Selenium sizes the window, Playwright sizes the viewport. Toolbars and window chrome take part of the window
+     * (measured: 143 px in headless Chrome, 85 px in Firefox), so size the window, measure the page area, and grow
+     * the window by the difference.
+     */
+    private static void setViewport(WebDriver driver, Dimension viewport) {
+        driver.manage().window().setSize(viewport);
+        List<?> inner = (List<?>) ((JavascriptExecutor) driver)
+                .executeScript("return [window.innerWidth, window.innerHeight];");
+        int extraWidth = viewport.getWidth() - ((Number) inner.get(0)).intValue();
+        int extraHeight = viewport.getHeight() - ((Number) inner.get(1)).intValue();
+        if (extraWidth != 0 || extraHeight != 0) {
+            driver.manage().window().setSize(
+                    new Dimension(viewport.getWidth() + extraWidth, viewport.getHeight() + extraHeight));
+        }
     }
 
     private static ChromeOptions chromeOptions(boolean headless) {

@@ -55,8 +55,8 @@ public final class FullPageScreenshot {
 
         if (driver instanceof ChromeDriver chrome) {
             chrome.executeCdpCommand("Emulation.setDeviceMetricsOverride", Map.of(
-                    "width", DriverFactory.WINDOW_SIZE.getWidth(),
-                    "height", DriverFactory.WINDOW_SIZE.getHeight(),
+                    "width", DriverFactory.VIEWPORT.getWidth(),
+                    "height", DriverFactory.VIEWPORT.getHeight(),
                     "deviceScaleFactor", 1,
                     "mobile", false));
             try {

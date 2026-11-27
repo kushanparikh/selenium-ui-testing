@@ -8,6 +8,8 @@ import io.github.kushanparikh.selenium.tests.accessibility.KnownAccessibilityIss
 import io.github.kushanparikh.selenium.tests.accessibility.KnownAccessibilityIssues.KnownIssue;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.openqa.selenium.WebDriver;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -19,14 +21,22 @@ import java.util.stream.Collectors;
  * Port of checkAccessibility() in tests/accessibility/accessibility.spec.ts: scans the current page with axe-core
  * against WCAG 2.1 A/AA, splits the violations into known (allow-listed in {@link KnownAccessibilityIssues}) and
  * new ones, and attaches the same plain-text summary the TS helper attaches.
+ * <p>
+ * Addition over the TS: allow-listed issues that axe no longer reports are listed as "stale" in the summary and
+ * logged as a warning (the test still passes), so the allow-list doesn't silently drift from the site.
  */
 public final class AccessibilityChecker {
 
     private static final List<String> TAGS = List.of("wcag2a", "wcag2aa", "wcag21a", "wcag21aa");
     private static final String SEPARATOR = "=".repeat(80);
+    private static final Logger LOG = LoggerFactory.getLogger(AccessibilityChecker.class);
 
-    /** The scan split into new and known violations; {@code total} is every violation axe reported. */
-    public record Report(List<Rule> newViolations, List<Rule> knownViolations, int total) {
+    /**
+     * The scan split into new and known violations; {@code total} is every violation axe reported;
+     * {@code staleKnownIssues} are allow-listed issues axe did not report this time.
+     */
+    public record Report(List<Rule> newViolations, List<Rule> knownViolations, int total,
+                         List<KnownIssue> staleKnownIssues) {
     }
 
     private AccessibilityChecker() {
@@ -46,11 +56,25 @@ public final class AccessibilityChecker {
             (isKnownIssue(violation, knownIssues) ? known : fresh).add(violation);
         }
 
-        String summary = summary(pageName, violations, known, fresh, knownIssues);
+        List<KnownIssue> stale = staleKnownIssues(knownIssues, violations);
+        for (KnownIssue issue : stale) {
+            LOG.warn("{}: known accessibility issue '{}' ({}) is no longer reported by axe; "
+                    + "consider removing it from KnownAccessibilityIssues", pageName, issue.id(), issue.impact());
+        }
+
+        String summary = summary(pageName, violations, known, fresh, knownIssues, stale);
         String reportName = "accessibility-report-" + pageName.replaceAll("\\s+", "-").toLowerCase(Locale.ROOT);
         Attachments.save(context, reportName, "txt", summary.getBytes(StandardCharsets.UTF_8));
 
-        return new Report(List.copyOf(fresh), List.copyOf(known), violations.size());
+        return new Report(List.copyOf(fresh), List.copyOf(known), violations.size(), stale);
+    }
+
+    /** Allow-listed issues (matched on id + impact, like the known/new split) that none of the violations match. */
+    public static List<KnownIssue> staleKnownIssues(List<KnownIssue> knownIssues, List<Rule> violations) {
+        return knownIssues.stream()
+                .filter(known -> violations.stream().noneMatch(v ->
+                        known.id().equals(v.getId()) && known.impact().equals(impact(v))))
+                .toList();
     }
 
     /** TS: violation.impact || 'unknown'. */
@@ -66,7 +90,7 @@ public final class AccessibilityChecker {
 
     /** Line for line the summary the TS helper builds, including its numbering quirks. */
     private static String summary(String pageName, List<Rule> violations, List<Rule> known, List<Rule> fresh,
-                                  List<KnownIssue> knownIssues) {
+                                  List<KnownIssue> knownIssues, List<KnownIssue> stale) {
         List<String> lines = new ArrayList<>();
         lines.add(SEPARATOR);
         lines.add("📋 Accessibility Report for " + pageName);
@@ -112,6 +136,17 @@ public final class AccessibilityChecker {
         } else {
             lines.add("");
             lines.add("✅ No new accessibility issues detected.");
+        }
+
+        if (!stale.isEmpty()) {
+            lines.add("");
+            lines.add("⚠️ Stale Known Issues (allow-listed but no longer detected - consider removing):");
+            for (int i = 0; i < stale.size(); i++) {
+                KnownIssue issue = stale.get(i);
+                lines.add((i + 1) + ". " + issue.id());
+                lines.add("   Impact: " + issue.impact());
+                lines.add("   Description: " + issue.description());
+            }
         }
 
         lines.add("");

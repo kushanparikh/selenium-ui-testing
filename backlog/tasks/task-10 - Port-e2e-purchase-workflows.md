@@ -1,9 +1,10 @@
 ---
 id: TASK-10
 title: Port e2e purchase workflows
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
+updated_date: '2026-11-27T03:13:04Z'
 labels:
   - port
   - e2e
@@ -14,6 +15,7 @@ dependencies:
   - TASK-7
   - TASK-8
   - TASK-9
+  - TASK-16
 references:
   - docs/superpowers/plans/2026-11-26-selenium-migration.md
 documentation:
@@ -31,6 +33,12 @@ Plan Task 10. CompletePurchaseTest (10 tests from tests/e2e/completePurchase.spe
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 mvn -q test -Dtest=CompletePurchaseTest: 10 pass
-- [ ] #2 Full functional run: 79 tests, 0 failures
+- [x] #1 mvn -q test -Dtest=CompletePurchaseTest: 10 pass
+- [x] #2 Full functional run: 79 tests, 0 failures
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Commit 91582aa. 10/10 e2e pass; functional run = 79 tests. Full suite 107 = 85 ported (79 functional + 3 visual + 3 a11y, same as Playwright) + 22 framework self-tests (selftest/ package, tag selftest — they test the framework's own helpers, not saucedemo; CI excludes them). One-shot TS cart counts became waiting verifyCartItemCount; waitForTimeout calls dropped.
+<!-- SECTION:NOTES:END -->

@@ -13,3 +13,6 @@ docs/superpowers/
 *.iml
 .vscode/
 .DS_Store
+
+# Agent worktrees
+.claude/worktrees/

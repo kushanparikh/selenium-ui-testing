@@ -1,0 +1,125 @@
+name: Selenium Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      update_snapshots:
+        description: Rewrite the visual baselines (uploaded as baselines-<browser> artifacts to review and commit)
+        type: boolean
+        default: false
+  schedule:
+    # After the Playwright (06:00) and GraphQL (06:15) nightlies.
+    - cron: '30 6 * * *'
+
+jobs:
+  test:
+    name: ${{ matrix.browser }} (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, browser: chrome }
+          - { os: windows-latest, browser: firefox }
+          # Safari only exists on macOS, and safaridriver runs one session at a time.
+          - { os: macos-latest, browser: safari }
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Enable Safari remote automation
+        if: matrix.browser == 'safari'
+        run: sudo safaridriver --enable
+
+      - name: "Diagnostic: capture the runner's screen every 30 s (temporary)"
+        # Safari's own screenshots on this runner are blank pages; this shows what is really on screen.
+        if: matrix.browser == 'safari'
+        run: |
+          mkdir -p results/screen
+          nohup bash -c 'i=0; while true; do screencapture -x "results/screen/$(printf %03d $i).png"; i=$((i+1)); sleep 30; done' >/dev/null 2>&1 &
+
+      - name: Run tests
+        # Test failures don't stop the job, so the reports below are always uploaded
+        # (the Playwright workflow does the same with continue-on-error).
+        shell: bash
+        run: |
+          extra=""
+          if [ "${{ inputs.update_snapshots }}" = "true" ]; then
+            extra="-Pvisual -DupdateSnapshots=true"
+          fi
+          mvn -B test -Dbrowser=${{ matrix.browser }} -DexcludedGroups=contract-demo,selftest \
+            -Dmaven.test.failure.ignore=true $extra
+
+      - name: Sanitize JUnit XML
+        # Surefire writes <properties> (usernames, absolute paths) for failed, rerun and skipped tests.
+        if: always()
+        run: java scripts/SanitizeReport.java results/junit/${{ matrix.browser }}
+
+      - name: Verify utr contract
+        if: always()
+        run: java scripts/VerifyReport.java results/junit/${{ matrix.browser }}
+
+      - name: Upload JUnit XML (merged into utr-results below)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.browser }}
+          path: results/junit/${{ matrix.browser }}/TEST-*.xml
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Upload test evidence (screenshots, diffs, a11y reports)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-evidence-${{ matrix.browser }}
+          path: results/attachments/
+          retention-days: 7
+
+      - name: "Diagnostic: upload runner screen captures (temporary)"
+        if: always() && matrix.browser == 'safari'
+        uses: actions/upload-artifact@v4
+        with:
+          name: screen-captures-safari
+          path: results/screen/
+          retention-days: 3
+
+      - name: Upload Allure results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ matrix.browser }}
+          path: target/allure-results/
+          retention-days: 30
+
+      - name: Upload updated baselines
+        if: always() && inputs.update_snapshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: baselines-${{ matrix.browser }}
+          path: src/test/resources/visual-baselines/*-${{ matrix.browser }}-*.png
+          retention-days: 7
+
+  utr-results:
+    # The artifact unified-test-reporting collects: one per run, <browser>/TEST-*.xml at its root.
+    needs: test
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/upload-artifact/merge@v4
+        with:
+          name: utr-results
+          pattern: '{chrome,firefox,safari}'
+          separate-directories: true
+          delete-merged: true
+          retention-days: 90

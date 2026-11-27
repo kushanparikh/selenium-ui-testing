@@ -1,9 +1,10 @@
 ---
 id: TASK-13
 title: Firefox and Safari support
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
+updated_date: '2026-11-27T03:17:28Z'
 labels:
   - cross-browser
 milestone: m-3

@@ -1,10 +1,10 @@
 ---
 id: TASK-12
 title: Accessibility checks
-status: In Progress
+status: Done
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
-updated_date: '2026-11-27T02:47:14Z'
+updated_date: '2026-11-27T03:00:26Z'
 labels:
   - a11y
 milestone: m-2
@@ -28,12 +28,12 @@ Plan Task 12. AccessibilityChecker (axe-core selenium, WCAG 2.0/2.1 A+AA), Known
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
 - [x] #1 mvn -q test -Pa11y: 3 pass
-- [ ] #2 Inventory report attachment lists select-name under Known Issues
-- [x] #3 VerifyReport exits 0
+- [x] #2 VerifyReport exits 0
+- [x] #3 Inventory report lists select-name under Stale Known Issues (site fixed it) and a WARN is logged; test still passes
 <!-- AC:END -->
 
 ## Implementation Notes
 
 <!-- SECTION:NOTES:BEGIN -->
-Wave B subagent. 3/3 pass. AC#2 NOT MET: saucedemo now gives the sort select aria-label='Sort products', so axe reports 0 violations and select-name (the only known issue) no longer appears. Awaiting owner decision: keep the stale allow-list entry or remove it.
+Wave B subagent + owner decision (c). 3/3 pass. saucedemo added aria-label='Sort products', so select-name is no longer reported; it stays allow-listed and is flagged as 'Stale Known Issues' in the report plus a WARN log.
 <!-- SECTION:NOTES:END -->

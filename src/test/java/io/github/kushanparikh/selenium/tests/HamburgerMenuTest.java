@@ -2,9 +2,12 @@ package io.github.kushanparikh.selenium.tests;
 
 import io.github.kushanparikh.selenium.support.BaseTest;
 import io.github.kushanparikh.selenium.support.Users;
+import io.github.kushanparikh.selenium.support.Waits;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.time.Duration;
 
 /** Port of tests/hamburgerMenu.spec.ts. */
 @DisplayName("Hamburger Menu Tests")
@@ -66,8 +69,8 @@ class HamburgerMenuTest extends BaseTest {
 
         hamburgerMenuPage.clickAboutLink();
 
-        // External site: only the URL is checked, as in the TS.
-        hamburgerMenuPage.waits().urlContains("saucelabs.com");
+        // External site: only the URL is checked, with the TS's own 15 s allowance (waitForURL timeout: 15000).
+        new Waits(driver, Duration.ofSeconds(15)).urlContains("saucelabs.com");
     }
 
     @Test

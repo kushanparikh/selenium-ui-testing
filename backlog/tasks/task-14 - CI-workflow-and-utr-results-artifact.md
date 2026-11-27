@@ -1,10 +1,10 @@
 ---
 id: TASK-14
 title: CI workflow and utr-results artifact
-status: To Do
+status: In Progress
 assignee: []
 created_date: '2026-11-27T00:47:29Z'
-updated_date: '2026-11-27T02:14:38Z'
+updated_date: '2026-11-27T04:11:40Z'
 labels:
   - ci
   - utr

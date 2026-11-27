@@ -89,6 +89,44 @@ class VisualComparatorTest {
         assertThat(result.diff().getRGB(0, 5)).isNotEqualTo(result.diff().getRGB(50, 50));
     }
 
+    /**
+     * pixelmatch (and so Playwright) ignores anti-aliased pixels: a pixel whose neighbours run from darker to lighter
+     * and that sits next to flat areas in both images. Font rendering varies run to run along glyph edges, so
+     * counting these made the Chrome visual tests flaky (114 and 143 differing pixels, all on text edges).
+     */
+    @Test
+    void antiAliasedEdgePixelIsIgnored() {
+        BufferedImage expected = barOnWhite();
+        BufferedImage actual = barOnWhite();
+        actual.setRGB(9, 5, new Color(128, 128, 128).getRGB()); // grey pixel smoothing the bar's left edge
+
+        VisualComparator.Result result = VisualComparator.compare(expected, actual);
+
+        assertThat(result.diffPixels()).isZero();
+    }
+
+    @Test
+    void changedPixelInsideFlatAreaStillCounts() {
+        BufferedImage expected = barOnWhite();
+        BufferedImage actual = barOnWhite();
+        actual.setRGB(3, 5, new Color(128, 128, 128).getRGB()); // grey pixel in the middle of the white area
+
+        VisualComparator.Result result = VisualComparator.compare(expected, actual);
+
+        assertThat(result.diffPixels()).isEqualTo(1);
+    }
+
+    /** 20x20 white image with a black bar covering x = 10..19. */
+    private static BufferedImage barOnWhite() {
+        BufferedImage image = filled(20, 20, Color.WHITE);
+        for (int y = 0; y < 20; y++) {
+            for (int x = 10; x < 20; x++) {
+                image.setRGB(x, y, Color.BLACK.getRGB());
+            }
+        }
+        return image;
+    }
+
     @Test
     void defaultBaselinePathIsRepoRelative() {
         String expected = "src/test/resources/visual-baselines/login-page-"

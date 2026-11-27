@@ -17,7 +17,8 @@ import java.nio.file.Path;
  * The Java counterpart of Playwright's expect(page).toHaveScreenshot(name, { fullPage: true }) with the options in
  * playwright.config.ts: per-pixel threshold 0.2 (pixelmatch's YIQ colour delta), and at most
  * min(maxDiffPixels 100, maxDiffPixelRatio 1%) differing pixels. Images of different sizes never match.
- * pixelmatch's anti-aliasing detection is not implemented, so anti-aliased edges count as differences.
+ * Like pixelmatch's default (includeAA: false), anti-aliased pixels are detected and not counted: font edges vary
+ * slightly from run to run, and counting them made the visual tests flaky.
  *
  * <p>Baselines live in src/test/resources/visual-baselines/&lt;name&gt;-&lt;browser&gt;-&lt;os&gt;.png. A missing baseline
  * is written from the actual image and the test fails (a re-run compares); -DupdateSnapshots=true overwrites the
@@ -33,6 +34,8 @@ public final class VisualComparator {
     private static final double MAX_DIFF_PIXEL_RATIO = 0.01;
 
     private static final int DIFF_COLOUR = 0xFFFF0000;
+    /** pixelmatch draws detected anti-aliased pixels in yellow. */
+    private static final int ANTI_ALIASED_COLOUR = 0xFFFFFF00;
 
     private VisualComparator() {
     }
@@ -71,8 +74,13 @@ public final class VisualComparator {
                 int a = expected.getRGB(x, y);
                 int b = actual.getRGB(x, y);
                 if (a != b && colourDelta(a, b) > MAX_DELTA) {
-                    diffPixels++;
-                    diff.setRGB(x, y, DIFF_COLOUR);
+                    if (antialiased(expected, x, y, width, height, actual)
+                            || antialiased(actual, x, y, width, height, expected)) {
+                        diff.setRGB(x, y, ANTI_ALIASED_COLOUR);
+                    } else {
+                        diffPixels++;
+                        diff.setRGB(x, y, DIFF_COLOUR);
+                    }
                 } else {
                     diff.setRGB(x, y, faded(a));
                 }
@@ -133,6 +141,83 @@ public final class VisualComparator {
         double di = i(r1, g1, b1) - i(r2, g2, b2);
         double dq = q(r1, g1, b1) - q(r2, g2, b2);
         return 0.5053 * dy * dy + 0.299 * di * di + 0.1957 * dq * dq;
+    }
+
+    /**
+     * Port of pixelmatch's antialiased(): the pixel at (x1, y1) in img is anti-aliased if, among its 8 neighbours,
+     * at most 2 have the same brightness, some are darker and some lighter, and the darkest or the lightest
+     * neighbour sits in a flat area (3+ identical neighbours) in both images.
+     */
+    private static boolean antialiased(BufferedImage img, int x1, int y1, int width, int height, BufferedImage img2) {
+        int x0 = Math.max(x1 - 1, 0);
+        int y0 = Math.max(y1 - 1, 0);
+        int x2 = Math.min(x1 + 1, width - 1);
+        int y2 = Math.min(y1 + 1, height - 1);
+        int centre = img.getRGB(x1, y1);
+        int zeroes = x1 == x0 || x1 == x2 || y1 == y0 || y1 == y2 ? 1 : 0;
+        double min = 0;
+        double max = 0;
+        int minX = 0;
+        int minY = 0;
+        int maxX = 0;
+        int maxY = 0;
+        for (int x = x0; x <= x2; x++) {
+            for (int y = y0; y <= y2; y++) {
+                if (x == x1 && y == y1) {
+                    continue;
+                }
+                double delta = brightnessDelta(centre, img.getRGB(x, y));
+                if (delta == 0) {
+                    zeroes++;
+                    if (zeroes > 2) {
+                        return false;
+                    }
+                } else if (delta < min) {
+                    min = delta;
+                    minX = x;
+                    minY = y;
+                } else if (delta > max) {
+                    max = delta;
+                    maxX = x;
+                    maxY = y;
+                }
+            }
+        }
+        if (min == 0 || max == 0) {
+            return false;
+        }
+        return (hasManySiblings(img, minX, minY, width, height) && hasManySiblings(img2, minX, minY, width, height))
+                || (hasManySiblings(img, maxX, maxY, width, height) && hasManySiblings(img2, maxX, maxY, width, height));
+    }
+
+    /** Port of pixelmatch's hasManySiblings(): 3+ neighbours (image edge counts as one) with exactly the same colour. */
+    private static boolean hasManySiblings(BufferedImage img, int x1, int y1, int width, int height) {
+        int x0 = Math.max(x1 - 1, 0);
+        int y0 = Math.max(y1 - 1, 0);
+        int x2 = Math.min(x1 + 1, width - 1);
+        int y2 = Math.min(y1 + 1, height - 1);
+        int centre = img.getRGB(x1, y1);
+        int zeroes = x1 == x0 || x1 == x2 || y1 == y0 || y1 == y2 ? 1 : 0;
+        for (int x = x0; x <= x2; x++) {
+            for (int y = y0; y <= y2; y++) {
+                if (x == x1 && y == y1) {
+                    continue;
+                }
+                if (img.getRGB(x, y) == centre) {
+                    zeroes++;
+                }
+                if (zeroes > 2) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /** pixelmatch's colorDelta(..., yOnly = true): signed brightness difference after blending onto white. */
+    private static double brightnessDelta(int a, int b) {
+        return y(blend(a >>> 16 & 0xFF, a >>> 24), blend(a >>> 8 & 0xFF, a >>> 24), blend(a & 0xFF, a >>> 24))
+                - y(blend(b >>> 16 & 0xFF, b >>> 24), blend(b >>> 8 & 0xFF, b >>> 24), blend(b & 0xFF, b >>> 24));
     }
 
     private static double blend(int channel, int alpha) {
